@@ -6,14 +6,16 @@
 ###############################################################
 $domainname= "home.lab";
 $user = "administrator@".$domainname;
-$pass = "Passw0rd";
-$server = 'ldaps://192.168.1.10';
+$pass = "Passw0rd!!!";
+$server = 'ldaps://192.168.5.3';
 $port="636";
 $binddn = "DC=home,DC=lab";
+$searchbase = "DC=home,DC=lab";
+
 
 ###############################################################
 ###
-###         MAIN
+###         BIND
 ###
 ###############################################################
 $ldap = ldap_connect($server);
@@ -21,7 +23,7 @@ ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
 ldap_set_option($ldap, LDAP_OPT_X_TLS_REQUIRE_CERT, LDAP_OPT_X_TLS_NEVER);
 ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
 
-ldap_start_tls($ldap);
+// ldap_start_tls($ldap);
 
 $bind=ldap_bind($ldap, $user, $pass);
 if (!$bind) {
@@ -30,26 +32,11 @@ if (!$bind) {
 
 ###############################################################
 ###
-###         START TIME
-###
-###############################################################
-$time_start = microtime(true);
-echo "START: ".date("M,d,Y h:i:s A - ".$time_start) . $server . "\n";
-
-###############################################################
-###
 ###         SEARCH
 ###
 ###############################################################
 ldapsearchuser("administrator",$searchbase,$domainname,$ldap);
-
-###############################################################
-###
-###         STOP TIME
-###
-###############################################################
-$time_stop = microtime(true);
-echo "STOP: ".date("M,d,Y h:i:s A - ".$time_stop) . "\n";
+ldapsearch("cn=administrator",$searchbase,$domainname,$ldap,["cn","samaccountname"]);
 
 ###############################################################
 ###
@@ -58,8 +45,15 @@ echo "STOP: ".date("M,d,Y h:i:s A - ".$time_stop) . "\n";
 ###############################################################
 
 # USAGE:
+# ldapsearch($filter,$domainname,$ldap,$attributes);
+function ldapsearch($filter,$dn,$domainname,$ldap,$attributes) {
+    $search = ldap_search($ldap, $dn, $filter, $attributes);
+    $info = ldap_get_entries($ldap, $search);
+    print_r($info) ;
+}
 
-# ldapadduser("OU=bir,DC=yeni,DC=lab",$domainname,$ldap);
+
+# ldapadduser("cn=administrator,DC=example,DC=lab",$domainname,$ldap);
 function ldapsearchuser($cn,$dn,$domainname,$ldap) {
     $dn_user="CN=".$cn;
     $search = ldap_search($ldap, $dn, $dn_user);
