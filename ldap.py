@@ -9,18 +9,21 @@ domainDCFormat = "dc=" + ",dc=".join(domainDotFormat.split("."))
 username = "administrator"
 userdn = "cn=administrator,cn=users,dc=domain,dc=tr"
 password = "Passw0rd"
-ldaptype = "openldap" ## openldap or ad
 
 def main(args):
     ## Set connection
-    if ldaptype == "openldap":
-        setOpenLDAPConnection()
-    elif ldaptype == "ad":
-        setSambaConnection()
+    ldapConnection = setSambaConnection()
     
-    ## Get users and groups
+    ## Filter for domain users
     filter = "(&(&(objectClass=organizationalPerson)(!(isCriticalSystemObject=TRUE))(!(objectClass=computer))(!(objectClass=group))))"
-    sambaSearchUsers = getObject(filter,ldapConnection,domainDCFormat,"Samba Users","uidnumber")
+
+    ## Get names of users in domain
+    sambaSearchUsers = getObject(filter,ldapConnection,domainDCFormat,"name")
+
+    ## Print result of search
+    print(sambaSearchUsers)
+
+    ## Close ldap connection
     ldapConnection.unbind()
     
 def setSambaConnection():
@@ -38,23 +41,8 @@ def setSambaConnection():
         print("Samba/AD sunucusuna baglanamadi")
         sys.exit(e)
 
-def setOpenLDAPConnection():
-    print("setOpenLDAPConnection")
-    global ldapConnection
-
-    try:
-        host = 'ldap://' + domainIpAdress + ':389'
-        dn = userdn
-        pw = password
-        ldapConnection = ldap.initialize(host)
-        ldapConnection.set_option(ldap.OPT_NETWORK_TIMEOUT, 20.0)
-        ldapConnection.simple_bind_s(dn, pw)
-    except Exception as e:
-        print("OpenLDAP sunucusuna baglanamadi")
-        sys.exit(e)
         
-def getObject(filter,Connection,DCFormat,type,attirbute):
-    print("getObject "+type)
+def getObject(filter,Connection,DCFormat,attirbute):
     ldapUsers = []
     page_control = SimplePagedResultsControl(True, size=1000, cookie='')
 
