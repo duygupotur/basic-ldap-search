@@ -1,6 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 from ldap.controls import SimplePagedResultsControl
 import ldap
+import sys
 
 ## Connection 
 domainIpAdress = "10.154.25.14"
@@ -37,6 +38,8 @@ def setSambaConnection():
         ldapConnection = ldap.initialize(host)
         ldapConnection.set_option(ldap.OPT_NETWORK_TIMEOUT, 20.0)
         ldapConnection.simple_bind_s(dn, pw)
+        return ldapConnection
+
     except Exception as e:
         print("Samba/AD sunucusuna baglanamadi")
         sys.exit(e)
