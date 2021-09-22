@@ -37,6 +37,8 @@ def setSambaConnection():
         pw = password
         ldapConnection = ldap.initialize(host)
         ldapConnection.set_option(ldap.OPT_NETWORK_TIMEOUT, 20.0)
+        ldapConnection.set_option(ldap.LDAP_OPT_PROTOCOL_VERSION, 3);
+        ldapConnection.set_option(ldap.LDAP_OPT_REFERRALS, 0);
         ldapConnection.simple_bind_s(dn, pw)
         return ldapConnection
 
