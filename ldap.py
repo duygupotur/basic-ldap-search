@@ -39,6 +39,7 @@ def setSambaConnection():
         ldapConnection.set_option(ldap.OPT_NETWORK_TIMEOUT, 20.0)
         ldapConnection.set_option(ldap.LDAP_OPT_PROTOCOL_VERSION, 3);
         ldapConnection.set_option(ldap.LDAP_OPT_REFERRALS, 0);
+        ldapConnection.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
         ldapConnection.simple_bind_s(dn, pw)
         return ldapConnection
 
